@@ -7,7 +7,6 @@ import numpy as np
 from datetime import datetime as dt
 from os.path import join
 from gensim.models.word2vec import Word2Vec
-from sklearn.metrics import confusion_matrix
 
 def train_bigram_transformer(addr='docs/clean_XMLs/bigFiles', min_count=50, threshold=50, save_addr='Phrases'):
     """
