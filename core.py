@@ -1,7 +1,7 @@
 import gensim
 import utilities
 import numpy as np
-
+import datetime
 from os import listdir
 from os.path import join, isfile
 
@@ -12,12 +12,20 @@ class Tony():
         self.tfidf_factor = tfidf_factor
         self.knowledge = dict()
 
+        start = datetime.datetime.now()
         self.model = gensim.models.Word2Vec.load(model_addr)
+        print "time to load model: %s"%(datetime.datetime.now() - start)
+        start = datetime.datetime.now()
         self.tfidf = utilities.tfidf()
         self.tfidf.load()
+        print "time to load tfidf: %s"%(datetime.datetime.now() - start)
+        start = datetime.datetime.now()
         self.bigram_transformer = gensim.models.phrases.Phraser.load(phrases_addr)
+        print "time to load bigram transformer: %s"%(datetime.datetime.now() - start)
+        start = datetime.datetime.now()
         self.code_knowledge()
-        
+        print "time to load knowledge: %s"%(datetime.datetime.now() - start)
+
     def set_knowledge_dir(self, knowledge_dir):
         self.knowledge_dir = knowledge_dir
 
