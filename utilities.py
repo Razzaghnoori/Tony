@@ -65,6 +65,12 @@ class word2vec(Word2Vec):
 
 class tfidf(dict):
     def generate(self, model, dirname):
+        #sentences = SentenceGrabber('docs/clean_XMLs/bigFiles')
+        # bigram_phrases = gensim.models.phrases.Phrases(sentences, min_count= 50, threshold= 50, delimiter= "‌")
+        # bigram_transformer = gensim.models.phrases.Phraser(bigram_phrases)
+        # bigram_transformer.save('Phrases')
+        bigram_transformer = gensim.models.phrases.Phraser.load('Phrases')
+
         tf = dict()
         idf = dict()
         N = len(os.listdir(dirname))  # number of documents
@@ -172,9 +178,4 @@ def keep_english_dir(dir_name):
     for doc in os.listdir(dir_name):
         keep_english(os.path.join(dir_name, doc))
 
-#sentences = SentenceGrabber('docs/clean_XMLs/bigFiles')
-# bigram_phrases = gensim.models.phrases.Phrases(sentences, min_count= 50, threshold= 50, delimiter= "‌")
-# bigram_transformer = gensim.models.phrases.Phraser(bigram_phrases)
-# bigram_transformer.save('Phrases')
-bigram_transformer = gensim.models.phrases.Phraser.load('Phrases')
 
