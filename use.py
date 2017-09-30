@@ -1,12 +1,11 @@
 # -*- coding: utf-8 --*
 
-import utilities
+
 import gensim.models.phrases
-import numpy as np
-#import tensorflow as tf
-from datetime import datetime as dt
-from os.path import join
 from gensim.models.word2vec import Word2Vec
+
+from utilities.nlp import Fetch
+
 
 def train_bigram_transformer(addr='docs/clean_XMLs/bigFiles', min_count=50, threshold=50, save_addr='Phrases'):
     """
@@ -20,7 +19,7 @@ def train_bigram_transformer(addr='docs/clean_XMLs/bigFiles', min_count=50, thre
     total vocabulary size.
     """
     
-    sentences = utilities.SentenceGrabber(addr)
+    sentences = Fetch(addr)
     bigram_phrases = gensim.models.phrases.Phrases(sentences, min_count, threshold, delimiter= "_")
     bigram_transformer = gensim.models.phrases.Phraser(bigram_phrases)
     bigram_transformer.save(save_addr)
@@ -33,7 +32,7 @@ def train_word2vec(addr='docs/clean_XMLs/bigFiles', vector_size=50, use_bigram_t
     as "vector_size"
     """
     
-    sentences = utilities.SentenceGrabber(addr)
+    sentences = Fetch(addr)
     if use_bigram_transform:
         bigram_transformer = gensim.models.phrases.Phraser.load(bigram_transformer_file_addr)
         model = Word2Vec(bigram_transformer[sentences], size=vector_size, window=_window, \
