@@ -12,8 +12,8 @@ while True:
 
     tony = core.Tony('word2vec/400', 'tfidf', 'Phrases', tfidf_factor=0.5)
 
-    answer = tony.answer(question)[0]
-    if not answer:
-        print answer
+    answer = tony.answer(question)
+    if len(answer) > 0:
+        print answer[0]
     else:
         print "i'm not sure , i will ask him !"
