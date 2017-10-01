@@ -72,6 +72,8 @@ class tfidf(dict):
         minimum = min(self.values())
         for word in self.keys():
             self[word] -= minimum
+            if self[word] < 0.5:
+                del self[word]
 
     def save(self):
         with open('tfidf.pkl', 'wb') as f:
