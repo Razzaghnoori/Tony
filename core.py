@@ -34,7 +34,7 @@ class Tony():
         X = np.zeros((m, n))
         for i, question in enumerate(questions):
             X[i] = np.sum([self.model[word] / tools.l2(self.model[word]) * (
-                self.tfidf[word] if self.tfidf.get(word) else 1) ** self.tfidf_factor
+                self.tfidf[word] if self.tfidf.get(word) else 1E-3) ** self.tfidf_factor
                            for word in self.bigram_transformer[question.split()] if word in self.model.wv.vocab],
                           axis=0)
         return X
