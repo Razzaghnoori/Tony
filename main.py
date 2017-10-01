@@ -3,17 +3,18 @@ import os
 import initialize
 
 while True:
-    if not os.path.exists("Phrases") and not os.path.exists("tfidf.pkl"):
-        print "intilizing"
+    if not (os.path.exists('word2vec/400') or os.path.exists('Phrases') or os.path.exists('tfidf.pkl')):
+        print "Intilizing"
         initialize.start()
 
-    print "how can i help you ?"
+    print "How can I help you?"
     question = raw_input()
 
-    tony = core.Tony('word2vec/400', 'tfidf', 'Phrases', tfidf_factor=0.5)
+    tony = core.Tony('word2vec/400', 'tfidf.pkl', 'Phrases', tfidf_factor=0.5)
 
     answer = tony.answer(question)
     if len(answer) > 0:
         print answer[0]
     else:
-        print "i'm not sure , i will ask him !"
+        print "I am not sure. I will inform Mr. Razzaghnoori."
+
