@@ -4,13 +4,16 @@ from utilities import nlp
 import numpy as np
 from os import listdir
 from os.path import join, isfile
-
+import re
 
 class Tony():
-    def __init__(self, model_addr, tfidf_addr, phrases_addr, knowledge_dir='knowledge', threshold=0.01, tfidf_factor=1):
+    def __init__(self, model_addr, tfidf_addr, phrases_addr, knowledge_dir='knowledge',
+                 threshold=0.01, tfidf_factor=1, use_bigram=False):
+
         self.knowledge_dir = knowledge_dir
         self.threshold = threshold
         self.tfidf_factor = tfidf_factor
+        self.use_bigram = use_bigram
         self.knowledge = dict()
 
         self.model = gensim.models.Word2Vec.load(model_addr)
@@ -19,7 +22,7 @@ class Tony():
         self.tfidf.load()
 
         self.bigram_transformer = gensim.models.phrases.Phraser.load(phrases_addr)
-
+        self.char_regex = re.compile("[\w.']+")
         self.code_knowledge()
 
     def set_knowledge_dir(self, knowledge_dir):
@@ -33,17 +36,26 @@ class Tony():
         n = self.model.vector_size
         X = np.zeros((m, n))
         for i, question in enumerate(questions):
-            X[i] = np.sum([self.model[word] / tools.l2(self.model[word]) * (
-                self.tfidf[word] if self.tfidf.get(word) else 1E-3) ** self.tfidf_factor
-                           for word in self.bigram_transformer[question.split()] if word in self.model.wv.vocab],
-                          axis=0)
+            question = question.lower()
+            question = ' '.join(self.char_regex.findall(question))
+            if self.use_bigram:
+                words = self.bigram_transformer[question.split()]
+            else:
+                words = question.split()
+
+            X[i] = np.sum([self.model[word] / tools.l2(self.model[word]) *
+                           (self.tfidf[word] if self.tfidf.get(word) else 1E-3) ** self.tfidf_factor
+                           for word in words if word in self.model.wv.vocab], axis=0)
         return X
 
     def code_knowledge(self):
         files = [f for f in listdir(self.knowledge_dir) if isfile(join(self.knowledge_dir, f))]
         for file_ in files:
             with open(join(self.knowledge_dir, file_)) as f:
-                self.knowledge[file_] = self.new_representation(f.readlines())
+                lines = f.readlines()
+                lines = map(str.lower, lines)
+                lines = [' '.join(self.char_regex.findall(line)) for line in lines]
+                self.knowledge[file_] = self.new_representation(lines)
 
     def answer(self, question):
         answers = list()

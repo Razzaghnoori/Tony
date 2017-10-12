@@ -3,7 +3,7 @@ import os
 import initialize
 
 while True:
-    if not (os.path.exists('word2vec/400') or os.path.exists('Phrases') or os.path.exists('tfidf.pkl')):
+    if not (os.path.exists('word2vec/400') and os.path.exists('Phrases') and os.path.exists('tfidf.pkl')):
         print "Intilizing"
         initialize.start()
 

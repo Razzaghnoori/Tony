@@ -24,7 +24,7 @@ def train_bigram_transformer(addr='docs/clean_XMLs/bigFiles', min_count=50, thre
     bigram_transformer = gensim.models.phrases.Phraser(bigram_phrases)
     bigram_transformer.save(save_addr)
 
-def train_word2vec(addr='docs/clean_XMLs/bigFiles', vector_size=50, use_bigram_transform=False,
+def train_word2vec(addr='Files/', vector_size=400, use_bigram_transform=False,
                    bigram_transformer_file_addr='Phrases', _window=8, _min_count=10, _workers=4,
                    _iter=5, _null_word=1):
     """

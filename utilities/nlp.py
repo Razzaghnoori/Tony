@@ -5,6 +5,7 @@ import pickle
 import os
 import gensim.models.phrases
 from math import log
+import re
 
 
 class word2vec(Word2Vec):
@@ -33,6 +34,9 @@ class word2vec(Word2Vec):
 
 
 class tfidf(dict):
+    def __init__(self, use_bigram_transformer=False):
+        self.use_bigram_transformer = use_bigram_transformer
+
     def generate(self, model, dirname):
         # sentences = SentenceGrabber('docs/clean_XMLs/bigFiles')
         # bigram_phrases = gensim.models.phrases.Phrases(sentences, min_count= 50, threshold= 50, delimiter= "‌")
@@ -47,7 +51,12 @@ class tfidf(dict):
         for doc_name in os.listdir(dirname):
             occurs = dict()
             for i, line in enumerate(open(os.path.join(dirname, doc_name)).readlines()):
-                for word in bigram_transformer[line.split()]:
+                if self.use_bigram_transformer:
+                    words = bigram_transformer[line.split()]
+                else:
+                    words = line.split()
+
+                for word in words:
                     occurs[word] = 1
                     if tf.get(word):
                         tf[word] += 1
@@ -87,9 +96,10 @@ class tfidf(dict):
 class Fetch(object):
     def __init__(self, dirname):
         self.dirname = dirname
-
+        self.char_regex = re.compile("[\w.']+")
     def __iter__(self):
         for fname in os.listdir(self.dirname):
             for line in open(os.path.join(self.dirname, fname)):
-                line = line.decode('utf-8')
+                line = line.lower()
+                line = ' '.join(self.char_regex.findall(line))
                 yield line.split()
