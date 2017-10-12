@@ -23,13 +23,14 @@ def l2(vec):
 
 
 def cosine_dist(x, y):
-    return x.dot(y) / (x.dot(x) * y.dot(y))
+    return x.dot(y) / (x.dot(x) * y.dot(y) + 1E-3)
 
 
 def keep_english(file_addr):
     with open(file_addr) as f:
         lines = [l for l in f.readlines() if l != '']
-    lines = map(lambda x: re.sub(r'[^a-zA-Z ]', '', x), lines)  # removes non-english characters
+    lines = map(lambda x: re.sub(r'[^\w]', ' ', x), lines)  # removes non-english characters
+    lines = map(lambda x: re.sub(r'\s+', ' ', x), lines)
     with open(file_addr, 'w') as f:
         f.writelines(lines)
 

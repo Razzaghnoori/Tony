@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from gensim.models import Word2Vec
+from math import log
+from collections import defaultdict
 import pickle
+import dill
 import os
 import gensim.models.phrases
-from math import log
 import re
 
 
@@ -33,8 +35,9 @@ class word2vec(Word2Vec):
         return self.dic.get(word)
 
 
-class tfidf(dict):
+class tfidf(defaultdict):
     def __init__(self, use_bigram_transformer=False):
+        super(tfidf, self).__init__(lambda: 0)
         self.use_bigram_transformer = use_bigram_transformer
 
     def generate(self, model, dirname):
@@ -44,13 +47,14 @@ class tfidf(dict):
         # bigram_transformer.save('Phrases')
         bigram_transformer = gensim.models.phrases.Phraser.load('Phrases')
 
-        tf = dict()
-        idf = dict()
+        tf = defaultdict(lambda: 0)
+        idf = defaultdict(lambda: 0)
         N = len(os.listdir(dirname))  # number of documents
+        sentences = Fetch('Files/')
 
-        for doc_name in os.listdir(dirname):
+        for file_name in os.listdir(dirname):
             occurs = dict()
-            for i, line in enumerate(open(os.path.join(dirname, doc_name)).readlines()):
+            for line in open(os.path.join(dirname, file_name)).readlines():
                 if self.use_bigram_transformer:
                     words = bigram_transformer[line.split()]
                 else:
@@ -58,15 +62,9 @@ class tfidf(dict):
 
                 for word in words:
                     occurs[word] = 1
-                    if tf.get(word):
-                        tf[word] += 1
-                    else:
-                        tf[word] = 1
+                    tf[word] += 1
             for word in occurs.keys():
-                if idf.get(word):
-                    idf[word] += 1
-                else:
-                    idf[word] = 1
+                idf[word] += 1
 
         # Normalizing idf
         for word in idf.keys():
@@ -86,20 +84,21 @@ class tfidf(dict):
 
     def save(self):
         with open('tfidf.pkl', 'wb') as f:
-            pickle.dump(self, f)
+            dill.dump(self, f)
 
     def load(self):
         with open('tfidf.pkl', 'rb') as f:
-            return pickle.load(f)
+            return dill.load(f)
 
 
 class Fetch(object):
     def __init__(self, dirname):
         self.dirname = dirname
         self.char_regex = re.compile("[\w.']+")
+
     def __iter__(self):
         for fname in os.listdir(self.dirname):
             for line in open(os.path.join(self.dirname, fname)):
                 line = line.lower()
-                line = ' '.join(self.char_regex.findall(line))
-                yield line.split()
+                line = self.char_regex.findall(line)
+                yield line

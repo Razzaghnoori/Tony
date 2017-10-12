@@ -19,7 +19,7 @@ class Tony():
         self.model = gensim.models.Word2Vec.load(model_addr)
 
         self.tfidf = nlp.tfidf()
-        self.tfidf.load()
+        self.tfidf = self.tfidf.load()
 
         self.bigram_transformer = gensim.models.phrases.Phraser.load(phrases_addr)
         self.char_regex = re.compile("[\w.']+")
@@ -43,9 +43,12 @@ class Tony():
             else:
                 words = question.split()
 
-            X[i] = np.sum([self.model[word] / tools.l2(self.model[word]) *
-                           (self.tfidf[word] if self.tfidf.get(word) else 1E-3) ** self.tfidf_factor
+            # print words
+            # for word in words:
+            #     print self.tfidf[word]
+            X[i] = np.sum([self.model[word] * self.tfidf[word] ** self.tfidf_factor
                            for word in words if word in self.model.wv.vocab], axis=0)
+            print X[i]
         return X
 
     def code_knowledge(self):
