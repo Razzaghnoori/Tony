@@ -22,7 +22,7 @@ class Tony():
         self.tfidf = self.tfidf.load()
 
         self.bigram_transformer = gensim.models.phrases.Phraser.load(phrases_addr)
-        self.char_regex = re.compile("[\w.']+")
+        self.char_regex = re.compile("\w+")
         self.code_knowledge()
 
     def set_knowledge_dir(self, knowledge_dir):
@@ -43,12 +43,8 @@ class Tony():
             else:
                 words = question.split()
 
-            # print words
-            # for word in words:
-            #     print self.tfidf[word]
-            X[i] = np.sum([self.model[word] * self.tfidf[word] ** self.tfidf_factor
-                           for word in words if word in self.model.wv.vocab], axis=0)
-            print X[i]
+            X[i] = np.sum([self.model[word] / tools.l2(self.model[word]) * self.tfidf[word] ** self.tfidf_factor
+                           for word in words if word in self.model.wv.vocab], axis=0) / len(words)
         return X
 
     def code_knowledge(self):
@@ -64,7 +60,7 @@ class Tony():
         answers = list()
         summary = list()
         question_vec = self.new_representation([question]).reshape(-1)
-
+        print self.model.wv.similar_by_vector(question_vec)
         for doc_name, doc_matrix in self.knowledge.iteritems():
             for sentence_num, sentence in enumerate(doc_matrix):
                 sim = tools.cosine_dist(question_vec, sentence.reshape(-1))
@@ -77,4 +73,4 @@ class Tony():
             with open(join(self.knowledge_dir, doc_name)) as f:
                 summary.append(f.readlines()[sentence_num])
 
-        return summary
+                return summary

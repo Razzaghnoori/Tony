@@ -14,6 +14,7 @@ while True:
 
     answer = tony.answer(question)
     if len(answer) > 0:
+        print "===================================="
         print answer
     else:
         print "I am not sure. I will inform Mr. Razzaghnoori."
