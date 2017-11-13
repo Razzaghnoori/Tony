@@ -23,7 +23,7 @@ class Tony():
 
         self.bigram_transformer = gensim.models.phrases.Phraser.load(phrases_addr)
         self.char_regex = re.compile("\w+")
-        self.code_knowledge()
+        #self.code_knowledge()
 
     def set_knowledge_dir(self, knowledge_dir):
         self.knowledge_dir = knowledge_dir
@@ -57,20 +57,37 @@ class Tony():
                 self.knowledge[file_] = self.new_representation(lines)
 
     def answer(self, question):
-        answers = list()
-        summary = list()
-        question_vec = self.new_representation([question]).reshape(-1)
-        print self.model.wv.similar_by_vector(question_vec)
-        for doc_name, doc_matrix in self.knowledge.iteritems():
-            for sentence_num, sentence in enumerate(doc_matrix):
-                sim = tools.cosine_dist(question_vec, sentence.reshape(-1))
-                if sim > self.threshold:
-                    answers.append((doc_name, sentence_num, sim))
+        question = question.lower()
+        question_word_set = set([word for word in question.split() if word not in self.model])
+        best_similarity = -np.inf
+        question_matrix = np.vstack([self.model[word]
+                                     for word in question.split()
+                                     if self.model.wv.vocab.get(word)])
 
-        sorted_answers = sorted(answers, key=lambda x: x[2], reverse=True)
+        question_matrix /= np.linalg.norm(question_matrix, axis=1).reshape(-1, 1)
 
-        for (doc_name, sentence_num, _) in sorted_answers:
-            with open(join(self.knowledge_dir, doc_name)) as f:
-                summary.append(f.readlines()[sentence_num])
+        for file_ in listdir(self.knowledge_dir):
+            with open(join(self.knowledge_dir, file_)) as handle:
+                for sentence in handle.readlines():
+                    sentence = sentence.lower()
+                    sentence_list_of_vectors = [self.model[word]
+                                                for word in sentence.split()
+                                                if self.model.wv.vocab.get(word)]
+                    if len(sentence_list_of_vectors) == 0:
+                        continue
+                    sentence_matrix = np.vstack(sentence_list_of_vectors)
+                    sentence_matrix /= np.linalg.norm(sentence_matrix, axis=1).reshape(-1, 1)
+                    sentence_matrix = sentence_matrix.T
+                    
+                    similarity_matix = np.dot(question_matrix, sentence_matrix)
+                    similarity = np.mean(np.max(similarity_matix, axis=1)) + \
+                                 len(question_word_set.intersection([word for word in set(sentence.split()) if word not in self.model]))
 
-                return summary
+                    if similarity > best_similarity:
+                        best_similarity = similarity
+                        result = sentence
+                        
+        print best_similarity
+        return result
+
+                    
