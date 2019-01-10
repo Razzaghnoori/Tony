@@ -9,7 +9,6 @@ import os
 import gensim.models.phrases
 import re
 
-
 class word2vec(Word2Vec):
     def __init__(self, *args, **kwargs):
         super(word2vec, self).__init__(*args, **kwargs)

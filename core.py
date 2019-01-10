@@ -6,6 +6,7 @@ from os import listdir
 from os.path import join, isfile
 import re
 
+
 class Tony():
     def __init__(self, model_addr, tfidf_addr, phrases_addr, knowledge_dir='knowledge',
                  threshold=0.01, tfidf_factor=1, use_bigram=False):
@@ -60,9 +61,13 @@ class Tony():
         question = question.lower()
         question_word_set = set([word for word in question.split() if word not in self.model])
         best_similarity = -np.inf
-        question_matrix = np.vstack([self.model[word]
-                                     for word in question.split()
-                                     if self.model.wv.vocab.get(word)])
+        question_list = [self.model[word]
+                         for word in question.split()
+                         if self.model.wv.vocab.get(word)]
+        if question_list:
+            question_matrix = np.vstack(question_list)
+        else:
+            return []
 
         question_matrix /= np.linalg.norm(question_matrix, axis=1).reshape(-1, 1)
 
@@ -87,7 +92,7 @@ class Tony():
                         best_similarity = similarity
                         result = sentence
                         
-        print best_similarity
+        #print(best_similarity)
         return result
 
                     
