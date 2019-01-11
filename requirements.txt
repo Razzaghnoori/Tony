@@ -5,9 +5,8 @@ chardet==3.0.4
 gensim==2.2.0
 idna==2.6
 numpy==1.13.1
-pkg-resources==0.0.0
-requests>=2.20.0
+requests==2.21.0
 scipy==0.19.1
 six==1.11.0
 smart-open==1.5.3
-urllib3==1.22
+urllib3==1.24.1
